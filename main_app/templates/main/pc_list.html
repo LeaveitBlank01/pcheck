@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PC List{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'css/mystyle.css' %}">
+<!-- <style>
+  .loader {
+    border: 6px solid #f3f3f3; /* Light gray */
+    border-top: 6px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: auto;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .menu-button {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: none;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    margin-bottom: 1em;
+    color: black;
+  }
+</style> -->
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="text-center mt-3 mb-3">
+    <h1>PC List</h1>
+  </div>
+
+  <div class="row">
+
+    <!-- Left Column -->
+    <div class="col-md-3 col-sm-4 mt-3">
+      <div class="card h-100">
+        <div class="card-header text-center">
+          <button id="addPCbutton" class="btn btn-round btn-secondary shadow menu-button mb-2">
+            Add PC
+          </button>
+          <br>
+          <a href="{% url 'main_app:pc-list' %}?filter=repair" 
+            id="repair-button" class="btn btn-round btn-secondary shadow menu-button mb-2">
+            Repair
+          </a>
+        </div>
+
+        <div class="card-body" id="PCformDiv" hidden>
+          <h5 id="form-title">Add a PC</h5>
+          <form method="post" id="pc-form">
+            {% csrf_token %}
+            <input type="hidden" name="pc_id" id="pc_id">
+            <div class="form-group mt-3">
+              {{form.name.errors}}
+              {{form.name.label_tag}}
+              {{form.name}}
+              <span class="text-danger" id="name-error"></span>
+            </div>
+            <div class="form-group mt-3">
+              {{form.ip_address.errors}}
+              {{form.ip_address.label_tag}}
+              {{form.ip_address}}
+              <span class="text-danger" id="ip-address-error"></span>
+            </div>
+            <div class="form-group mt-3" hidden>
+              {{form.status.errors}}
+              {{form.status.label_tag}}
+              {{form.status}}
+            </div>
+            <div class="mt-3">
+              <p class="mt-1">Status: <span id="status_indicator"></span></p>
+              <div id="spinner" style="display: none; text-align:center; margin-top:20px;">
+                <div class="loader"></div>
+                <p>Connecting...</p>
+              </div>
+              <button type="button" id="connectButton" class="btn btn-sm btn-secondary">Connect</button>
+            </div>
+            <div class="form-group mt-3">
+              {{form.system_condition.errors}}
+              {{form.system_condition.label_tag}}
+              {{form.system_condition}}
+            </div>
+            <div class="mt-3">
+              <button type="submit" class="btn btn-sm btn-primary" id="save-button">Save</button>
+              <button type="button" id="cancel-button" style="display:none;" class="btn btn-sm btn-secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-md-9 col-sm-8 mt-3">
+      <div class="card">
+        <div class="card-body">
+          <table class="table table-striped table-hover table-sm">
+            <thead class="thead-dark">
+              <tr>
+                <th>PCs</th>
+                <th>IP Address</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pc in pc_list %}
+              <tr class="edit-row" data-pc-id="{{ pc.pk }}" data-name="{{ pc.name }}" 
+                data-ip="{{ pc.ip_address }}" data-status="{{ pc.status }}" data-health="{{ pc.system_condition }}">
+                <td>{{ pc.name }}</td>
+                <td>{{ pc.ip_address }}</td>
+                <td>
+                  {% if pc.status == 'connected' %}
+                    <i class="fa-solid fa-circle text-success"></i>
+                  {% else %}
+                    <i class="fa-solid fa-circle text-danger"></i>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'main_app:pc-update' pk=pc.pk %}" class="btn" title="edit PC">
+                    <i class="fa-solid fa-user-pen"></i>
+                  </a>
+                  <a class="btn" href="{% url 'main_app:delete-pc' pk=pc.pk %}" title="delete PC">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/myscript.js' %}"></script>
+{% endblock %}
